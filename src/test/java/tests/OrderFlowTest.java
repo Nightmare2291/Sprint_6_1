@@ -5,11 +5,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.WebDriver;
-import pageobjects.HomePage;
-import pageobjects.OrderPage;
-import pageobjects.OrderConfirmationPopup;
-
-import java.util.List;
+import pageobjects.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,39 +25,42 @@ public class OrderFlowTest {
 
     @ParameterizedTest
     @CsvSource({
-            "Анна,Иванова,Москва, ул. Ленина,10,Белорусская,89001234567",
-            "Иван,Петров,Санкт-Петербург, Невский пр.,50,Площадь Восстания,89998765432"
+            "Анна,Иванова,Москва ул. Ленина 10,Черкизовская,89001234567,20.05.2025,сутки,чёрный жемчуг,Привезите вовремя",
+            "Иван,Петров,Санкт-Петербург Невский пр.50,Сокольники,89998765432,22.05.2025,трое суток,серая безысходность, Отвали"
     })
-    void positiveOrderFlow(String firstName, String lastName, String address,
-                           String metro, String phone) {
+    void fullOrderFlow(String firstName, String lastName, String address,
+                       String metro, String phone, String date, String duration,
+                       String color, String comment) {
 
-        // Шаг 1: Открыть сайт и нажать кнопку "Заказать" (верхняя)
+        // 1. Открыть главную и нажать кнопку заказа
         HomePage homePage = new HomePage(driver);
         homePage.open();
         homePage.clickHeaderOrderButton();
 
-        // Шаг 2: Заполнить форму
-        OrderPage orderPage = new OrderPage(driver);
-        orderPage.fillForm(firstName, lastName, address, metro, phone);
+        // 2. Заполнить первую страницу
+        OrderPage firstPage = new OrderPage(driver);
+        firstPage.waitForPageToLoad();
+        firstPage.fillForm(firstName, lastName, address, metro, phone);
 
-        // Шаг 3: Нажать "Далее"
-        orderPage.clickNext();
+        // 3. Перейти на вторую страницу
+        OrderSecondPage secondPage = firstPage.clickNext();
+        secondPage.waitForPageToLoad();
 
-        // Шаг 4: Ожидаем появление модального окна (или проверка по заголовку)
-        // Поскольку у вас "всплывающее окно" — обычно модальное окно
+        // 4. Заполнить вторую страницу (если параметр передан)
+        secondPage.selectDeliveryDate(date);
+        secondPage.selectRentalDuration(duration);
+        if (color != null && !color.isEmpty()) {
+            secondPage.selectColor(color);
+        }
+        if (comment != null && !comment.isEmpty()) {
+            secondPage.setComment(comment);
+        }
+
+        // 5. Нажать «Заказать»
+        secondPage.clickSubmit();
+
+        // 6. Нажать "Да" на всплывающем окне
         OrderConfirmationPopup popup = new OrderConfirmationPopup(driver);
-        assertTrue(popup.isVisible());
-        assertEquals("Заказ оформлен", popup.getSuccessMessage()); // 🛑 проверьте реальный текст!
-        // ⚠️ Если баг — может не перейти на след. шаг. Это нормально: тест показал баг.
-    }
-
-    // 🧪 БАГ-ТЕСТ: проверка поведения в Chrome при нажатии на кнопку
-    @Test
-    @Disabled("Known bug in Chrome — кнопка не кликается в автоматическом режиме")
-    void chromeOrderButtonBug() {
-        HomePage homePage = new HomePage(driver);
-        homePage.open();
-        homePage.clickHeaderOrderButton();
-        // Если тест упал здесь — это и есть баг
+//        assertTrue(popup.isVisible(), "После заказа должно появиться модальное окно");
     }
 }

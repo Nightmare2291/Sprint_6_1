@@ -4,11 +4,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
 
 public class HomePage {
-
+    private WebDriverWait wait;
     private WebDriver driver;
 
     // === Элементы ===
@@ -21,12 +24,13 @@ public class HomePage {
     @FindBy(xpath = "//div[@class='Home_FinishButton__1_cWm']//button")
     private WebElement footerOrderButton;
 
-    // === Вопросы о важном (аккордеон) ===
-    @FindBy(xpath = "//div[@data-accordion-component='Accordion']//div[@class='accordion__button']")
+    // Кнопки аккордеона (вопросы)
+    @FindBy(xpath = "//div[@data-accordion-component='AccordionItem']")
     private List<WebElement> accordionButtons;
 
-    @FindBy(xpath = "//div[@data-accordion-component='AccordionItemPanel']//p")
-    public List<WebElement> accordionPanels;
+    // Панели с ответами (все панели, включая скрытые)
+    @FindBy(xpath = "//div[@data-accordion-component='AccordionItemPanel']")
+    private List<WebElement> accordionPanelsRaw;
 
     // Логотип Самоката (в шапке)
     @FindBy(xpath = "//a[@class='Header_LogoScooter__3lsAR']")
@@ -38,6 +42,7 @@ public class HomePage {
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         PageFactory.initElements(driver, this);
     }
 
@@ -57,15 +62,21 @@ public class HomePage {
 
     // Нажимает на N-ю кнопку аккордеона и проверяет, что соответствующий текст виден
     public void toggleAccordion(int index) {
-        accordionButtons.get(index).click();
+        WebElement title = wait.until(ExpectedConditions.elementToBeClickable(org.openqa.selenium.By.xpath("//*[@id='rcc-confirm-button']")));
+        title.click();
+        WebElement title1 = wait.until(ExpectedConditions.elementToBeClickable(org.openqa.selenium.By.xpath("//*[@id='root']/div/div/div[5]/div[1]")));
+        title1.click();
+        String tmp = "//div[@aria-controls='accordion__panel-"+index+"']";
+        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(org.openqa.selenium.By.xpath(tmp)));
+        button.click();
     }
 
     public String getAccordionPanelText(int index) {
-        return accordionPanels.get(index).getText();
+        return accordionPanelsRaw.get(index).getText();
     }
 
     public boolean isAccordionPanelVisible(int index) {
-        String attribute = accordionPanels.get(index).getAttribute("hidden");
+        String attribute = accordionPanelsRaw.get(index).getAttribute("hidden");
         return attribute == null || attribute.isEmpty();
     }
 

@@ -9,7 +9,7 @@ public class OrderConfirmationPopup {
 
     private WebDriver driver;
 
-    @FindBy(xpath = "//div[@class='Order_Modal__YZ-d3']//h2")
+    @FindBy(xpath = "//div[@id='root']/div/div[2]/div[5]/div[1]/text()")
     private WebElement successTitle;
 
     public OrderConfirmationPopup(WebDriver driver) {
