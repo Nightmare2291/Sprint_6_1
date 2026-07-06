@@ -7,6 +7,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.WebDriver;
 import pageobjects.*;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderFlowTest {
@@ -61,6 +63,15 @@ public class OrderFlowTest {
 
         // 6. Нажать "Да" на всплывающем окне
         OrderConfirmationPopup popup = new OrderConfirmationPopup(driver);
-//        assertTrue(popup.isVisible(), "После заказа должно появиться модальное окно");
+        //assertTrue(popup.isVisible(), "После заказа должно появиться модальное окно");
+        secondPage.clickConfirmYes();
+
+        // Проверяем, что появилось окно с "Заказ оформлен"
+        assertTrue(secondPage.isOrderSuccessModalVisible(), "Окно 'Заказ оформлен' должно появиться");
+        "Заказ оформлен".contains(secondPage.getOrderSuccessMessage());
+
+        // Опционально: проверяем наличие номера заказа
+        assertTrue(secondPage.hasOrderNumber(), "В тексте должен быть номер заказа");
+
     }
 }

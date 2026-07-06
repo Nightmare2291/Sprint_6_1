@@ -10,7 +10,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 public class BrowserFactory {
 
     public static WebDriver getDriver() {
-        String browser = System.getProperty("browser", "chrome");
+        String browser = System.getenv("browser");
         WebDriver driver;
 
         switch (browser.toLowerCase()) {
@@ -25,6 +25,7 @@ public class BrowserFactory {
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
+                firefoxOptions.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
                 driver = new FirefoxDriver(firefoxOptions);
                 break;
             default:

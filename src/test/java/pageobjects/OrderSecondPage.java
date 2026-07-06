@@ -58,6 +58,15 @@ public class OrderSecondPage {
     @FindBy(xpath = "//div[@class='Order_Overlay__3KW-T']")
     private WebElement modalOverlay;
 
+    @FindBy(xpath = "//div[@class='Order_Modal__YZ-d3']")
+    private WebElement orderSuccessModal;
+
+    @FindBy(xpath = "//div[@class='Order_ModalHeader__3FDaJ']")
+    private WebElement successModalTitle;
+
+    @FindBy(xpath = "//div[@class='Order_NextButton__1_rCA']//button")
+    private WebElement viewStatusButton;
+
     public OrderSecondPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
@@ -129,5 +138,25 @@ public class OrderSecondPage {
         wait.until(ExpectedConditions.elementToBeClickable(confirmYesButton));
         confirmYesButton.click();
     }
+    /**
+     * Проверяет, что появилось окно "Заказ оформлен"
+     */
+    public boolean isOrderSuccessModalVisible() {
+        return wait.until(ExpectedConditions.visibilityOf(orderSuccessModal)).isDisplayed();
+    }
 
+    /**
+     * Получает текст заголовка (ожидаем: "Заказ оформлен")
+     */
+    public String getOrderSuccessMessage() {
+        return successModalTitle.getText();
+    }
+
+    /**
+     * Проверяет, что номер заказа присутствует в тексте
+     */
+    public boolean hasOrderNumber() {
+        String text = successModalTitle.getText();
+        return text.contains("Номер заказа:");
+    }
 }
